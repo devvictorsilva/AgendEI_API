@@ -12,7 +12,7 @@ export class AgendamentoService {
   ) {}
 
   async getAll() {
-    return await this.agendamentoRepository.find({
+    const agendamentos = await this.agendamentoRepository.find({
       where: {
         status: StatusAgendamento.PENDENTE,
       },
@@ -22,6 +22,18 @@ export class AgendamentoService {
         tipo_atendimento: true,
         status: true,
       },
+    });
+
+    const prioridadeMap: Record<string, number> = {
+      Prioridade: 1,
+      Agendado: 2,
+      'Ordem de chegada': 3,
+    };
+
+    return agendamentos.sort((a, b) => {
+      const prioridadeA = prioridadeMap[a.tipo_atendimento] || 99;
+      const prioridadeB = prioridadeMap[b.tipo_atendimento] || 99;
+      return prioridadeA - prioridadeB;
     });
   }
 
